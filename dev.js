@@ -4,12 +4,12 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { detectIocType, PROVIDER_SUPPORT } from '../lib/detectType.js';
-import { queryVirusTotal } from '../providers/virustotal.js';
-import { queryAbuseIPDB } from '../providers/abuseipdb.js';
-import { queryOTX } from '../providers/otx.js';
-import { queryProxyCheck } from '../providers/proxycheck.js';
-import { queryCrowdSec } from '../providers/crowdsec.js';
+import { detectIocType, PROVIDER_SUPPORT } from './lib/detectType.js';
+import { queryVirusTotal } from './providers/virustotal.js';
+import { queryAbuseIPDB } from './providers/abuseipdb.js';
+import { queryOTX } from './providers/otx.js';
+import { queryProxyCheck } from './providers/proxycheck.js';
+import { queryCrowdSec } from './providers/crowdsec.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,9 +17,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// Serve static files dari root
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(__dirname));
 
 const PROVIDERS = [
   { key: 'virustotal', fn: queryVirusTotal, envKey: 'VIRUSTOTAL_API_KEY' },
@@ -51,12 +49,10 @@ function buildConsensus(results) {
   };
 }
 
-// Homepage
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Health check
 app.get('/api/health', (req, res) => {
   const configured = PROVIDERS.filter((p) => !!process.env[p.envKey]).map((p) => p.key);
   res.json({
@@ -66,7 +62,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Enrich stream (SSE)
 app.get('/api/enrich-stream', async (req, res) => {
   const rawIoc = req.query.ioc;
   if (!rawIoc || typeof rawIoc !== 'string') {
@@ -76,9 +71,7 @@ app.get('/api/enrich-stream', async (req, res) => {
 
   const ioc = detectIocType(rawIoc);
   if (ioc.type === 'unknown') {
-    res.status(400).json({
-      error: "Couldn't tell what kind of indicator that is. Try an IP, domain, URL, or file hash.",
-    });
+    res.status(400).json({ error: "Unrecognized indicator type" });
     return;
   }
 
@@ -129,41 +122,7 @@ app.get('/api/enrich-stream', async (req, res) => {
   }
 });
 
-// Enrich (REST)
-app.post('/api/enrich', async (req, res) => {
-  const { ioc: rawIoc } = req.body;
-  if (!rawIoc || typeof rawIoc !== 'string') {
-    return res.status(400).json({ error: 'Provide an IOC to look up' });
-  }
-
-  const ioc = detectIocType(rawIoc);
-  if (ioc.type === 'unknown') {
-    return res.status(400).json({
-      error: "Couldn't tell what kind of indicator that is.",
-    });
-  }
-
-  const relevantProviders = PROVIDERS.filter((p) =>
-    PROVIDER_SUPPORT[p.key]?.includes(ioc.type)
-  );
-
-  const settled = await Promise.allSettled(
-    relevantProviders.map((p) => p.fn(ioc, process.env[p.envKey]))
-  );
-
-  const results = settled
-    .map((s) => (s.status === 'fulfilled' ? s.value : null))
-    .filter((r) => r !== null);
-
-  const consensus = buildConsensus(results);
-
-  res.json({
-    ioc: { type: ioc.type, value: ioc.value },
-    consensus,
-    results,
-    fromCache: false,
-    checkedAt: new Date().toISOString(),
-  });
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`DROGBI running at http://localhost:${PORT}`);
 });
-
-export default app;
