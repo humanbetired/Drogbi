@@ -10,8 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-        <link rel="alternate icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/svg+xml" href="image/favicon.ico">
     <style>
         :root {
             --gray-50: #F9FAFB;
@@ -599,7 +598,7 @@
 
     <script>
         (function () {
-            const API_BASE = 'https://drogbi.vercel.app';
+            const API_BASE = '';
 
             const PROVIDER_CONFIG = {
                 virustotal: {
@@ -709,9 +708,7 @@
             }
 
             function updateProviderCard(result) {
-                console.log('Received result:', result.provider, result);
                 const card = document.getElementById(`card-${result.provider}`);
-                console.log('Updating card:', card);
                 if (!card) return;
 
                 const config = PROVIDER_CONFIG[result.provider];
