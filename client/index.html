@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DROGBI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="alternate icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <style>
+        :root {
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+
+            --blue-50: #EFF6FF;
+            --blue-100: #DBEAFE;
+            --blue-200: #BFDBFE;
+            --blue-500: #3B82F6;
+            --blue-600: #2563EB;
+            --blue-700: #1D4ED8;
+
+            --red-50: #FEF2F2;
+            --red-100: #FEE2E2;
+            --red-500: #EF4444;
+            --red-600: #DC2626;
+
+            --green-50: #F0FDF4;
+            --green-100: #DCFCE7;
+            --green-500: #22C55E;
+            --green-600: #16A34A;
+
+            --amber-50: #FFFBEB;
+            --amber-100: #FEF3C7;
+            --amber-500: #F59E0B;
+            --amber-600: #D97706;
+
+            --purple-50: #FAF5FF;
+            --purple-500: #A855F7;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .app-wrapper {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 32px 40px;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .brand-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+        }
+
+        .brand-text h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--gray-900);
+            line-height: 1.2;
+        }
+
+        .brand-text span {
+            font-size: 13px;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-500);
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+        }
+
+        .status-indicator.offline {
+            background: var(--red-500);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        /* Main Search */
+        .search-container {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-100);
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue-500), var(--purple-500));
+        }
+
+        .search-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 56px;
+            padding: 0 20px;
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            color: var(--gray-900);
+            outline: none;
+            transition: all var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--blue-500);
+            background: white;
+            box-shadow: 0 0 0 4px var(--blue-100);
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-400);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        .search-button {
+            height: 56px;
+            padding: 0 32px;
+            background: var(--gray-900);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .search-button:hover {
+            background: var(--gray-800);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-button:active {
+            transform: translateY(0);
+        }
+
+        .search-button:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .search-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .error-message {
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: var(--red-50);
+            border: 1px solid var(--red-100);
+            border-left: 4px solid var(--red-500);
+            border-radius: var(--radius-sm);
+            color: var(--red-600);
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .help-text {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+
+        /* Results Grid */
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .providers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .provider-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-100);
+            transition: all var(--transition);
+            position: relative;
+            animation: slideUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .provider-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-color: var(--gray-200);
+        }
+
+        .provider-card.loading {
+            background: var(--gray-50);
+        }
+
+        .provider-card.malicious {
+            border-left: 4px solid var(--red-500);
+            background: var(--red-50);
+        }
+
+        .provider-card.suspicious {
+            border-left: 4px solid var(--amber-500);
+            background: var(--amber-50);
+        }
+
+        .provider-card.clean {
+            border-left: 4px solid var(--green-500);
+            background: var(--green-50);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .provider-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: var(--gray-100);
+        }
+
+        .provider-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .provider-type {
+            font-size: 11px;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        .verdict-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .verdict-badge.malicious {
+            background: var(--red-500);
+            color: white;
+        }
+
+        .verdict-badge.suspicious {
+            background: var(--amber-500);
+            color: white;
+        }
+
+        .verdict-badge.clean {
+            background: var(--green-500);
+            color: white;
+        }
+
+        .verdict-badge.unknown {
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+
+        /* Loading State */
+        .loading-indicator {
+            margin: 16px 0;
+        }
+
+        .loading-bar {
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .loading-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue-500), var(--purple-500));
+            border-radius: 2px;
+            width: 30%;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(400%);
+            }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: var(--gray-500);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .loading-text::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+        }
+
+        .card-summary {
+            font-size: 13px;
+            color: var(--gray-700);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .view-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--blue-600);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .view-link:hover {
+            color: var(--blue-700);
+        }
+
+        .score {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-700);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--gray-400);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            stroke: var(--gray-300);
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--gray-500);
+        }
+
+        @media (max-width: 768px) {
+            .app-wrapper {
+                padding: 20px;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            .nav-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Navigation -->
+        <nav class="nav-bar">
+            <div class="brand">
+                <div class="brand-text">
+                    <h1>DROGBI</h1>
+                    <span>Penangkal IoC Jomok</span>
+                </div>
+            </div>
+            <div class="system-status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span class="status-text" id="statusText">Checking services...</span>
+            </div>
+        </nav>
+
+        <!-- Search Section -->
+        <div class="search-container">
+            <div class="search-label">Threat Lookup</div>
+            <div class="search-row">
+                <div class="input-wrapper">
+                    <input type="text" id="iocInput" class="search-input"
+                        placeholder="Enter IP, domain, URL, or file hash..." autocomplete="off" spellcheck="false" />
+                </div>
+                <button id="searchButton" class="search-button">
+                    Tanya Drogbi
+                </button>
+            </div>
+            <div class="help-text">Ditenagai dengan 5 teman Drogbi, spesialis cek kejomokan</div>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section-title">Hasil Drogbi</div>
+        <div id="providersGrid" class="providers-grid">
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" />
+                </svg>
+                <p>Enter an indicator above to begin analysis</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const API_BASE = 'http://localhost:3001';
+
+            const PROVIDER_CONFIG = {
+                virustotal: {
+                    name: 'VirusTotal',
+                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 16V12M12 8H12.01"/></svg>',
+                    description: 'Multi-engine antivirus scanning'
+                },
+                abuseipdb: {
+                    name: 'AbuseIPDB',
+                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M3 3V21H21"/><path d="M7 16L11 12L15 16L21 10"/></svg>',
+                    description: 'IP abuse reporting database'
+                },
+                otx: {
+                    name: 'AlienVault OTX',
+                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15C18.6 17.3 16.5 19 14 19C10.7 19 8 16.3 8 13C8 10.5 9.7 8.4 12 7.6"/></svg>',
+                    description: 'Community threat intelligence'
+                },
+                proxycheck: {
+                    name: 'Proxycheck.io',
+                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2C14.5 6 14.5 18 12 22C9.5 18 9.5 6 12 2Z"/></svg>',
+                    description: 'Proxy, VPN, and Tor detection'
+                },
+                crowdsec: {
+                    name: 'CrowdSec CTI',
+                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"/><circle cx="9" cy="9" r="4"/><path d="M23 21V19C22.9986 17.1771 21.765 15.5857 20 15.13"/><path d="M16 3.13C17.7694 3.58314 19.0035 5.17792 19 7"/></svg>',
+                    description: 'Collaborative intrusion detection'
+                }
+            };
+
+            const DOM = {
+                input: document.getElementById('iocInput'),
+                button: document.getElementById('searchButton'),
+                grid: document.getElementById('providersGrid'),
+                error: document.getElementById('errorMessage'),
+                statusDot: document.getElementById('statusIndicator'),
+                statusText: document.getElementById('statusText')
+            };
+
+            let eventSource = null;
+
+            async function checkSystemHealth() {
+                try {
+                    const response = await fetch(`${API_BASE}/api/health`);
+                    const data = await response.json();
+                    DOM.statusDot.classList.remove('offline');
+                    DOM.statusText.textContent = `${data.providersConfigured.length}/${data.providersTotal} Drogbi Bangun`;
+                } catch (error) {
+                    DOM.statusDot.classList.add('offline');
+                    DOM.statusText.textContent = 'Drogbi Tidur';
+                }
+            }
+
+            function detectIndicatorType(value) {
+                const trimmed = value.trim();
+                if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed)) return 'ip';
+                if (/^https?:\/\//i.test(trimmed)) return 'url';
+                if (/^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(trimmed)) return 'hash';
+                if (/^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(trimmed)) return 'domain';
+                return 'unknown';
+            }
+
+            function closeConnection() {
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
+            }
+
+            function resetButton() {
+                DOM.button.disabled = false;
+                DOM.button.innerHTML = `
+                    Tanya Drogbi
+                `;
+            }
+
+            function renderLoadingCards() {
+                const providers = Object.keys(PROVIDER_CONFIG);
+                DOM.grid.innerHTML = '';
+
+                providers.forEach((key, index) => {
+                    const config = PROVIDER_CONFIG[key];
+                    const card = document.createElement('div');
+                    card.className = 'provider-card loading';
+                    card.id = `card-${key}`;
+                    card.style.animationDelay = `${index * 0.06}s`;
+
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div class="provider-info">
+                                <div class="provider-avatar">${config.icon}</div>
+                                <div>
+                                    <div class="provider-name">${config.name}</div>
+                                    <div class="provider-type">${config.description}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="loading-indicator">
+                            <div class="loading-bar">
+                                <div class="loading-bar-fill"></div>
+                            </div>
+                            <div class="loading-text">Querying</div>
+                        </div>
+                    `;
+
+                    DOM.grid.appendChild(card);
+                });
+            }
+
+            function updateProviderCard(result) {
+                console.log('Received result:', result.provider, result);
+                const card = document.getElementById(`card-${result.provider}`);
+                console.log('Updating card:', card);
+                if (!card) return;
+
+                const config = PROVIDER_CONFIG[result.provider];
+                const verdict = result.verdict || 'unknown';
+
+                card.className = `provider-card ${verdict}`;
+
+                const verdictLabels = {
+                    malicious: 'Malicious',
+                    suspicious: 'Suspicious',
+                    clean: 'Clean',
+                    unknown: 'Unknown'
+                };
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="provider-info">
+                            <div class="provider-avatar">${config.icon}</div>
+                            <div>
+                                <div class="provider-name">${config.name}</div>
+                                <div class="provider-type">${config.description}</div>
+                            </div>
+                        </div>
+                        <span class="verdict-badge ${verdict}">${verdictLabels[verdict]}</span>
+                    </div>
+                    <div class="card-summary">${result.summary || 'No intelligence available'}</div>
+                    <div class="card-footer">
+                        ${result.link ? `<a href="${result.link}" target="_blank" rel="noopener" class="view-link">Cek Doksli</a>` : '<span></span>'}
+                        ${result.score !== undefined ? `<span class="score">${result.score}/100</span>` : ''}
+                    </div>
+                `;
+            }
+
+            function executeLookup() {
+                const query = DOM.input.value.trim();
+                DOM.error.style.display = 'none';
+
+                if (!query) return;
+
+                const type = detectIndicatorType(query);
+                if (type === 'unknown') {
+                    DOM.error.textContent = 'Unrecognized indicator format. Please provide a valid IP, domain, URL, or hash.';
+                    DOM.error.style.display = 'block';
+                    return;
+                }
+
+                closeConnection();
+                DOM.button.disabled = true;
+                DOM.button.textContent = 'Analyzing...';
+
+                renderLoadingCards();
+
+                const streamUrl = `${API_BASE}/api/enrich-stream?ioc=${encodeURIComponent(query)}`;
+                eventSource = new EventSource(streamUrl);
+
+                eventSource.addEventListener('result', (event) => {
+                    const result = JSON.parse(event.data);
+                    updateProviderCard(result);
+                });
+
+                eventSource.addEventListener('done', () => {
+                    closeConnection();
+                    resetButton();
+                });
+
+                eventSource.addEventListener('error', () => {
+                    if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+                        return;
+                    }
+                    DOM.error.textContent = 'Connection failed. Please verify the DROGBI server is running on localhost:3001.';
+                    DOM.error.style.display = 'block';
+                    closeConnection();
+                    resetButton();
+                });
+            }
+
+            DOM.button.addEventListener('click', executeLookup);
+            DOM.input.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') executeLookup();
+            });
+
+            checkSystemHealth();
+        })();
+    </script>
+</body>
+
+</html>
