@@ -4,14 +4,14 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { detectIocType, PROVIDER_SUPPORT } from './lib/detectType.js';
-import { initCache, getCached, setCached, isCacheAvailable } from './lib/cache.js';
+import { detectIocType, PROVIDER_SUPPORT } from '../lib/detectType.js';
+import { initCache, getCached, setCached, isCacheAvailable } from '../lib/cache.js';
 
-import { queryVirusTotal } from './providers/virustotal.js';
-import { queryAbuseIPDB } from './providers/abuseipdb.js';
-import { queryOTX } from './providers/otx.js';
-import { queryProxyCheck } from './providers/proxycheck.js';
-import { queryCrowdSec } from './providers/crowdsec.js';
+import { queryVirusTotal } from '../providers/virustotal.js';
+import { queryAbuseIPDB } from '../providers/abuseipdb.js';
+import { queryOTX } from '../providers/otx.js';
+import { queryProxyCheck } from '../providers/proxycheck.js';
+import { queryCrowdSec } from '../providers/crowdsec.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,8 +20,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files (HTML, CSS, JS, favicon, dll)
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, '..'));
 
 initCache(process.env.REDIS_URL || 'redis://localhost:6379');
 
@@ -57,7 +56,7 @@ function buildConsensus(results) {
 
 // Route homepage
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, "..",'index.html'));
 });
 
 app.get('/api/enrich-stream', async (req, res) => {
