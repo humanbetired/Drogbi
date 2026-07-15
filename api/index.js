@@ -18,7 +18,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files dari root
 app.use(express.static(path.join(__dirname, '..')));
 
 const PROVIDERS = [
