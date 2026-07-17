@@ -558,7 +558,7 @@
             <div class="brand">
                 <div class="brand-text">
                     <h1>DROGBI</h1>
-                    <span>Penangkal IoC Jomok</span>
+                    <span>Penangkal IP Jomok</span>
                 </div>
             </div>
             <div class="system-status">
@@ -569,11 +569,10 @@
 
         <!-- Search Section -->
         <div class="search-container">
-            <div class="search-label">Threat Lookup</div>
             <div class="search-row">
                 <div class="input-wrapper">
                     <input type="text" id="iocInput" class="search-input"
-                        placeholder="Enter IP, domain, URL, or file hash..." autocomplete="off" spellcheck="false" />
+                        placeholder="Masukkan kesini mas...." autocomplete="off" spellcheck="false" />
                 </div>
                 <button id="searchButton" class="search-button">
                     Tanya Drogbi
@@ -598,200 +597,233 @@
 
     <script>
         (function () {
-            const API_BASE = '';
+                const API_BASE = '';
 
-            const PROVIDER_CONFIG = {
-                virustotal: {
-                    name: 'VirusTotal',
-                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 16V12M12 8H12.01"/></svg>',
-                    description: 'Multi-engine antivirus scanning'
-                },
-                abuseipdb: {
-                    name: 'AbuseIPDB',
-                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M3 3V21H21"/><path d="M7 16L11 12L15 16L21 10"/></svg>',
-                    description: 'IP abuse reporting database'
-                },
-                otx: {
-                    name: 'AlienVault OTX',
-                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15C18.6 17.3 16.5 19 14 19C10.7 19 8 16.3 8 13C8 10.5 9.7 8.4 12 7.6"/></svg>',
-                    description: 'Community threat intelligence'
-                },
-                proxycheck: {
-                    name: 'Proxycheck.io',
-                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2C14.5 6 14.5 18 12 22C9.5 18 9.5 6 12 2Z"/></svg>',
-                    description: 'Proxy, VPN, and Tor detection'
-                },
-                crowdsec: {
-                    name: 'CrowdSec CTI',
-                    icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21"/><circle cx="9" cy="9" r="4"/><path d="M23 21V19C22.9986 17.1771 21.765 15.5857 20 15.13"/><path d="M16 3.13C17.7694 3.58314 19.0035 5.17792 19 7"/></svg>',
-                    description: 'Collaborative intrusion detection'
-                }
-            };
-
-            const DOM = {
-                input: document.getElementById('iocInput'),
-                button: document.getElementById('searchButton'),
-                grid: document.getElementById('providersGrid'),
-                error: document.getElementById('errorMessage'),
-                statusDot: document.getElementById('statusIndicator'),
-                statusText: document.getElementById('statusText')
-            };
-
-            let eventSource = null;
-
-            async function checkSystemHealth() {
-                try {
-                    const response = await fetch(`${API_BASE}/api/health`);
-                    const data = await response.json();
-                    DOM.statusDot.classList.remove('offline');
-                    DOM.statusText.textContent = `${data.providersConfigured.length}/${data.providersTotal} Drogbi Bangun`;
-                } catch (error) {
-                    DOM.statusDot.classList.add('offline');
-                    DOM.statusText.textContent = 'Drogbi Tidur';
-                }
-            }
-
-            function detectIndicatorType(value) {
-                const trimmed = value.trim();
-                if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed)) return 'ip';
-                if (/^https?:\/\//i.test(trimmed)) return 'url';
-                if (/^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(trimmed)) return 'hash';
-                if (/^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(trimmed)) return 'domain';
-                return 'unknown';
-            }
-
-            function closeConnection() {
-                if (eventSource) {
-                    eventSource.close();
-                    eventSource = null;
-                }
-            }
-
-            function resetButton() {
-                DOM.button.disabled = false;
-                DOM.button.innerHTML = `
-                    Tanya Drogbi
-                `;
-            }
-
-            function renderLoadingCards() {
-                const providers = Object.keys(PROVIDER_CONFIG);
-                DOM.grid.innerHTML = '';
-
-                providers.forEach((key, index) => {
-                    const config = PROVIDER_CONFIG[key];
-                    const card = document.createElement('div');
-                    card.className = 'provider-card loading';
-                    card.id = `card-${key}`;
-                    card.style.animationDelay = `${index * 0.06}s`;
-
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <div class="provider-info">
-                                <div class="provider-avatar">${config.icon}</div>
-                                <div>
-                                    <div class="provider-name">${config.name}</div>
-                                    <div class="provider-type">${config.description}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="loading-indicator">
-                            <div class="loading-bar">
-                                <div class="loading-bar-fill"></div>
-                            </div>
-                            <div class="loading-text">Querying</div>
-                        </div>
-                    `;
-
-                    DOM.grid.appendChild(card);
-                });
-            }
-
-            function updateProviderCard(result) {
-                const card = document.getElementById(`card-${result.provider}`);
-                if (!card) return;
-
-                const config = PROVIDER_CONFIG[result.provider];
-                const verdict = result.verdict || 'unknown';
-
-                card.className = `provider-card ${verdict}`;
-
-                const verdictLabels = {
-                    malicious: 'Malicious',
-                    suspicious: 'Suspicious',
-                    clean: 'Clean',
-                    unknown: 'Unknown'
+                const PROVIDER_CONFIG = {
+                    virustotal: {
+                        name: 'VirusTotal',
+                        description: 'Multi-engine antivirus scanning'
+                    },
+                    abuseipdb: {
+                        name: 'AbuseIPDB',
+                        description: 'IP abuse reporting database'
+                    },
+                    otx: {
+                        name: 'AlienVault OTX',
+                        description: 'Community threat intelligence'
+                    },
+                    proxycheck: {
+                        name: 'Proxycheck.io',
+                        description: 'Proxy, VPN, and Tor detection'
+                    },
+                    crowdsec: {
+                        name: 'CrowdSec CTI',
+                        description: 'Collaborative intrusion detection'
+                    }
                 };
 
-                card.innerHTML = `
-                    <div class="card-header">
-                        <div class="provider-info">
-                            <div class="provider-avatar">${config.icon}</div>
-                            <div>
-                                <div class="provider-name">${config.name}</div>
-                                <div class="provider-type">${config.description}</div>
-                            </div>
-                        </div>
-                        <span class="verdict-badge ${verdict}">${verdictLabels[verdict]}</span>
-                    </div>
-                    <div class="card-summary">${result.summary || 'No intelligence available'}</div>
-                    <div class="card-footer">
-                        ${result.link ? `<a href="${result.link}" target="_blank" rel="noopener" class="view-link">Cek Doksli</a>` : '<span></span>'}
-                        ${result.score !== undefined ? `<span class="score">${result.score}/100</span>` : ''}
-                    </div>
-                `;
-            }
+                const DOM = {
+                    input: document.getElementById('iocInput'),
+                    button: document.getElementById('searchButton'),
+                    grid: document.getElementById('providersGrid'),
+                    error: document.getElementById('errorMessage'),
+                    statusDot: document.getElementById('statusIndicator'),
+                    statusText: document.getElementById('statusText')
+                };
 
-            function executeLookup() {
-                const query = DOM.input.value.trim();
-                DOM.error.style.display = 'none';
+                let eventSource = null;
 
-                if (!query) return;
-
-                const type = detectIndicatorType(query);
-                if (type === 'unknown') {
-                    DOM.error.textContent = 'Inputnya yang bener laaa, sikik aaaaaa';
-                    DOM.error.style.display = 'block';
-                    return;
+                async function checkSystemHealth() {
+                    try {
+                        const response = await fetch(`${API_BASE}/api/health`);
+                        const data = await response.json();
+                        DOM.statusDot.classList.remove('offline');
+                        DOM.statusText.textContent = `${data.providersConfigured.length}/${data.providersTotal} Drogbi Bangun`;
+                    } catch (error) {
+                        DOM.statusDot.classList.add('offline');
+                        DOM.statusText.textContent = 'Drogbi Tidur';
+                    }
                 }
 
-                closeConnection();
-                DOM.button.disabled = true;
-                DOM.button.textContent = 'Analyzing...';
+                function detectIndicatorType(value) {
+                    const trimmed = value.trim();
+                    if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed)) return 'ip';
+                    if (/^https?:\/\//i.test(trimmed)) return 'url';
+                    if (/^[a-fA-F0-9]{32}$|^[a-fA-F0-9]{40}$|^[a-fA-F0-9]{64}$/.test(trimmed)) return 'hash';
+                    if (/^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(trimmed)) return 'domain';
+                    return 'unknown';
+                }
 
-                renderLoadingCards();
+                function closeConnection() {
+                    if (eventSource) {
+                        eventSource.close();
+                        eventSource = null;
+                    }
+                }
 
-                const streamUrl = `${API_BASE}/api/enrich-stream?ioc=${encodeURIComponent(query)}`;
-                eventSource = new EventSource(streamUrl);
+                function resetButton() {
+                    DOM.button.disabled = false;
+                    DOM.button.innerHTML = `
+            Tanya Drogbi
+        `;
+                }
 
-                eventSource.addEventListener('result', (event) => {
-                    const result = JSON.parse(event.data);
-                    updateProviderCard(result);
-                });
+                function renderLoadingCards(providerKeys) {
+                    DOM.grid.innerHTML = '';
 
-                eventSource.addEventListener('done', () => {
-                    closeConnection();
-                    resetButton();
-                });
+                    providerKeys.forEach((key, index) => {
+                        const config = PROVIDER_CONFIG[key];
+                        if (!config) return;
 
-                eventSource.addEventListener('error', () => {
-                    if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+                        const card = document.createElement('div');
+                        card.className = 'provider-card loading';
+                        card.id = `card-${key}`;
+                        card.style.animationDelay = `${index * 0.06}s`;
+
+                        card.innerHTML = `
+                <div class="card-header">
+                    <div class="provider-info">
+                        <div class="provider-avatar">${config.icon}</div>
+                        <div>
+                            <div class="provider-name">${config.name}</div>
+                            <div class="provider-type">${config.description}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="loading-indicator">
+                    <div class="loading-bar">
+                        <div class="loading-bar-fill"></div>
+                    </div>
+                    <div class="loading-text">Querying</div>
+                </div>
+            `;
+
+                        DOM.grid.appendChild(card);
+                    });
+                }
+
+                function renderSkippedCard(key, iocType) {
+                    const config = PROVIDER_CONFIG[key];
+                    if (!config) return;
+
+                    const card = document.createElement('div');
+                    card.className = 'provider-card unknown';
+                    card.id = `card-${key}`;
+
+                    card.innerHTML = `
+            <div class="card-header">
+                <div class="provider-info">
+                    <div class="provider-avatar">${config.icon}</div>
+                    <div>
+                        <div class="provider-name">${config.name}</div>
+                        <div class="provider-type">${config.description}</div>
+                    </div>
+                </div>
+                <span class="verdict-badge unknown">Skipped</span>
+            </div>
+            <div class="card-summary">${config.name} doesn't support ${iocType} lookups, so it was skipped.</div>
+        `;
+
+                    DOM.grid.appendChild(card);
+                }
+
+                function updateProviderCard(result) {
+                    const card = document.getElementById(`card-${result.provider}`);
+                    if (!card) return;
+
+                    const config = PROVIDER_CONFIG[result.provider];
+                    const verdict = result.verdict || 'unknown';
+
+                    card.className = `provider-card ${verdict}`;
+
+                    const verdictLabels = {
+                        malicious: 'Malicious',
+                        suspicious: 'Suspicious',
+                        clean: 'Clean',
+                        unknown: 'Unknown'
+                    };
+
+                    card.innerHTML = `
+            <div class="card-header">
+                <div class="provider-info">
+                    <div class="provider-avatar">${config.icon}</div>
+                    <div>
+                        <div class="provider-name">${config.name}</div>
+                        <div class="provider-type">${config.description}</div>
+                    </div>
+                </div>
+                <span class="verdict-badge ${verdict}">${verdictLabels[verdict]}</span>
+            </div>
+            <div class="card-summary">${result.summary || 'No intelligence available'}</div>
+            <div class="card-footer">
+                ${result.link ? `<a href="${result.link}" target="_blank" rel="noopener" class="view-link">Cek Doksli</a>` : '<span></span>'}
+                ${result.score !== undefined ? `<span class="score">${result.score}/100</span>` : ''}
+            </div>
+        `;
+                }
+
+                function executeLookup() {
+                    const query = DOM.input.value.trim();
+                    DOM.error.style.display = 'none';
+
+                    if (!query) return;
+
+                    const type = detectIndicatorType(query);
+                    if (type === 'unknown') {
+                        DOM.error.textContent = 'Inputnya yang bener laaa, sikik aaaaaa';
+                        DOM.error.style.display = 'block';
                         return;
                     }
-                    DOM.error.textContent = 'Drogbi udah kecapekan, coba cek lantai 4';
-                    DOM.error.style.display = 'block';
+
                     closeConnection();
-                    resetButton();
+                    DOM.button.disabled = true;
+                    DOM.button.textContent = 'Analyzing...';
+
+                    // NOTE: loading cards are no longer rendered here directly.
+                    // We wait for the server's 'meta' event so we only show cards
+                    // for providers that actually support this IOC type.
+
+                    const streamUrl = `${API_BASE}/api/enrich-stream?ioc=${encodeURIComponent(query)}`;
+                    eventSource = new EventSource(streamUrl);
+
+                    eventSource.addEventListener('meta', (event) => {
+                        const meta = JSON.parse(event.data);
+
+                        renderLoadingCards(meta.providers);
+
+                        if (meta.skipped && meta.skipped.length > 0) {
+                            meta.skipped.forEach((key) => renderSkippedCard(key, meta.ioc.type));
+                        }
+                    });
+
+                    eventSource.addEventListener('result', (event) => {
+                        const result = JSON.parse(event.data);
+                        updateProviderCard(result);
+                    });
+
+                    eventSource.addEventListener('done', () => {
+                        closeConnection();
+                        resetButton();
+                    });
+
+                    eventSource.addEventListener('error', () => {
+                        if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+                            return;
+                        }
+                        DOM.error.textContent = 'Drogbi udah kecapekan, coba cek lantai 4';
+                        DOM.error.style.display = 'block';
+                        closeConnection();
+                        resetButton();
+                    });
+                }
+
+                DOM.button.addEventListener('click', executeLookup);
+                DOM.input.addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') executeLookup();
                 });
-            }
 
-            DOM.button.addEventListener('click', executeLookup);
-            DOM.input.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') executeLookup();
-            });
-
-            checkSystemHealth();
-        })();
+                checkSystemHealth();
+            })();
     </script>
 </body>
 

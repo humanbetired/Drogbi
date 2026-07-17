@@ -50,12 +50,10 @@ function buildConsensus(results) {
   };
 }
 
-// Homepage
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Health check
 app.get('/api/health', (req, res) => {
   const configured = PROVIDERS.filter((p) => !!process.env[p.envKey]).map((p) => p.key);
   res.json({
@@ -65,7 +63,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Enrich stream (SSE)
 app.get('/api/enrich-stream', async (req, res) => {
   const rawIoc = req.query.ioc;
   if (!rawIoc || typeof rawIoc !== 'string') {
@@ -96,10 +93,14 @@ app.get('/api/enrich-stream', async (req, res) => {
     const relevantProviders = PROVIDERS.filter((p) =>
       PROVIDER_SUPPORT[p.key]?.includes(ioc.type)
     );
+    const skippedProviders = PROVIDERS.filter((p) =>
+      !PROVIDER_SUPPORT[p.key]?.includes(ioc.type)
+    ).map((p) => p.key);
 
     send('meta', {
       ioc: { type: ioc.type, value: ioc.value },
       providers: relevantProviders.map((p) => p.key),
+      skipped: skippedProviders,
       fromCache: false,
     });
 
@@ -128,7 +129,6 @@ app.get('/api/enrich-stream', async (req, res) => {
   }
 });
 
-// Enrich (REST)
 app.post('/api/enrich', async (req, res) => {
   const { ioc: rawIoc } = req.body;
   if (!rawIoc || typeof rawIoc !== 'string') {
