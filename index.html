@@ -683,7 +683,6 @@
                         card.innerHTML = `
                 <div class="card-header">
                     <div class="provider-info">
-                        <div class="provider-avatar">${config.icon}</div>
                         <div>
                             <div class="provider-name">${config.name}</div>
                             <div class="provider-type">${config.description}</div>
@@ -713,7 +712,6 @@
                     card.innerHTML = `
             <div class="card-header">
                 <div class="provider-info">
-                    <div class="provider-avatar">${config.icon}</div>
                     <div>
                         <div class="provider-name">${config.name}</div>
                         <div class="provider-type">${config.description}</div>
@@ -746,7 +744,6 @@
                     card.innerHTML = `
             <div class="card-header">
                 <div class="provider-info">
-                    <div class="provider-avatar">${config.icon}</div>
                     <div>
                         <div class="provider-name">${config.name}</div>
                         <div class="provider-type">${config.description}</div>
@@ -778,10 +775,6 @@
                     closeConnection();
                     DOM.button.disabled = true;
                     DOM.button.textContent = 'Analyzing...';
-
-                    // NOTE: loading cards are no longer rendered here directly.
-                    // We wait for the server's 'meta' event so we only show cards
-                    // for providers that actually support this IOC type.
 
                     const streamUrl = `${API_BASE}/api/enrich-stream?ioc=${encodeURIComponent(query)}`;
                     eventSource = new EventSource(streamUrl);
